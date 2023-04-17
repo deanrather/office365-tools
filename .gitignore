@@ -1,0 +1,3 @@
+get-calendar-events.sh
+node_modules/
+ignored-events.txt

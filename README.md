@@ -21,13 +21,16 @@ commute
 
 ### Usage
 
+- make sure you got no gaps or overlaps in calendar
 - goto <https://outlook.office.com/calendar/view/workweek>
 - Press F12 to open the inspector, go to the "Network" tab. Paste: "GetCalendarView" into the search
 - Refresh the page
-- right-click the request and choose copy->as curl (cmd)
-- paste the curl command into get-calendar-events.sh
-- run `node ./parse-calendar.mjs` to run the report on last week's data
-- run `node ./parse-calendar.mjs --this week` to run the report on this week's data
+- right-click the request and choose copy->as curl (bash)
+- paste the curl command into `get-calendar-events.sh`
+- run `node ./parse-calendar.mjs` to run the report on this week's data
+- run `node ./parse-calendar.mjs --weeks-ago=1` to run the report last week's data
+- check all the right thing are there, and that the things all have categories
+- if need, update calendar and go back to re-running the cli
 
 ---
 

@@ -3,20 +3,21 @@ import moment from 'moment';
 import Table from 'cli-table3';
 import { execSync } from 'child_process'
 
-const stdout = execSync('./get-calendar-events.sh');
+const stdout = execSync('./get-calendar-events.sh', {stdio: ['ignore', 'pipe', 'ignore']});
 const output = stdout.toString();
 const calendarData = JSON.parse(output)
 const calendarItems = calendarData.Body.Items;
 
 const args = process.argv.slice(2);
-let firstDay, lastDay;
-if (args.includes('--thisWeek')) {
-    firstDay = moment().startOf('week');
-    lastDay = moment().startOf('week').add(1, 'week');
-} else {
-    firstDay = moment().startOf('week').subtract(1, 'week');
-    lastDay = moment().startOf('week');
+let weeksAgo = 0;
+let weeksAgoArg;
+if (weeksAgoArg = args.find(arg => arg.startsWith('--weeks-ago='))) {
+    console.log({weeksAgoArg});
+    [,weeksAgo] = weeksAgoArg.split('=')
 }
+const firstDay = moment().startOf('week').subtract(weeksAgo, 'week');
+const lastDay = moment().startOf('week').subtract(weeksAgo-1, 'week');
+console.log({firstDay, lastDay})
 
 const ignoredEvents = readFileSync('ignored-events.txt', { encoding: 'utf8' }).trim().split("\n")
 console.log('ignoredEvents', ignoredEvents)
@@ -29,6 +30,7 @@ const events = [];
 calendarItems.forEach((item) => {
     const start = moment(item.Start);
     if (start >= firstDay && start <= lastDay) {
+        console.log('COUNTING', item.Start, item.Subject)
         if (item.IsAllDayEvent) return;
         if (ignoredEvents.some(ignoredSubject => item.Subject.includes(ignoredSubject))) return;
         events.push({
@@ -39,6 +41,8 @@ calendarItems.forEach((item) => {
             duration: moment.duration(moment(item.End).diff(start)).asHours().toFixed(1),
             category: item.Categories.length > 0 ? item.Categories[0] : '',
         });
+    } else {
+        console.log('skipping', item.Start, item.Subject)
     }
 });
 
